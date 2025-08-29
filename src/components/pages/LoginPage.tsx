@@ -36,34 +36,39 @@ export function LoginPage({ onLogin }: LoginPageProps) {
     setIsLoading(true)
 
     try {
-      // 3. 개발 중에는 mockApiDelay로 1초간 대기 (실제 API 대기 시뮬레이션)
-      await mockApiDelay(1000)
+      // Mock 데이터 부분 주석 처리
+      // await mockApiDelay(1000)
+      // const user = findMockUser(employeeId)
+      // if (user && password === 'admin123') {
+      //   onLogin(user)
+      // } else {
+      //   setError('사번 또는 비밀번호가 올바르지 않습니다.')
+      // }
 
-      // 4. 입력한 사번(employeeId)로 Mock 사용자 찾기
-      const user = findMockUser(employeeId)
+      // 실제 백엔드 API 연동
+      const response = await apiService.login(employeeId, password)
+      const data = response.data
 
-      // 5. 사용자가 있고, 비밀번호가 'admin123'이면 로그인 성공 처리
-      if (user && password === 'admin123') {
-        onLogin(user) // 부모 컴포넌트로 로그인된 사용자 정보 전달
+      if (response.success && response.data.tokens) {
+        if (response.data.tokens.accessToken) {
+          localStorage.setItem('accessToken', response.data.tokens.accessToken)
+          localStorage.setItem(
+            'refreshToken',
+            response.data.tokens.refreshToken
+          )
+        }
+
+        // 관리자 정보 전달
+        onLogin(response.manager) // response.data.manager 아님
       } else {
-        // 6. 조건 불일치 시 에러 메시지 표시
-        setError('사번 또는 비밀번호가 올바르지 않습니다.')
+        setError(response.message || '로그인에 실패했습니다.')
       }
-
-      // 7. 실제 API 연동 코드 (주석 처리됨, 백엔드 연결 시 사용)
-      /*
-    const response = await apiService.login(employeeId, password);
-    if (response.success && response.data) {
-      onLogin(response.data.user);
-    } else {
-      setError(response.error || '로그인에 실패했습니다.');
-    }
-    */
     } catch (error) {
-      // 8. 네트워크 등 예외 발생 시 에러 메시지 표시
+      // 네트워크 또는 기타 에러 처리
       setError('로그인 중 오류가 발생했습니다.')
+      console.error('로그인 에러:', error)
     } finally {
-      // 9. 로딩 상태 false로 변경 (성공/실패와 관계없이 항상 실행)
+      // 로딩 상태 false로 변경
       setIsLoading(false)
     }
   }

@@ -18,12 +18,14 @@ import {
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu'
 import hospitalLogo from '../../assets/logo_md.png'
+import { UserIfno } from '../../types'
 
 interface HeaderProps {
   onLogout: () => void
+  userInfo?: UserIfno
 }
 
-export function Header({ onLogout }: HeaderProps) {
+export function Header({ onLogout, userInfo }: HeaderProps) {
   return (
     <header className="sticky top-0 z-50 border-b border-border/50 bg-white/80 backdrop-blur-xl supports-[backdrop-filter]:bg-white/60">
       <div className="flex h-16 items-center justify-between px-6 lg:px-8">
@@ -54,8 +56,12 @@ export function Header({ onLogout }: HeaderProps) {
                   <User className="w-4 h-4 text-primary-foreground" />
                 </div>
                 <div className="hidden md:block text-left">
-                  <p className="text-sm font-medium text-foreground">관리자</p>
-                  <p className="text-xs text-muted-foreground">{}</p>
+                  <p className="text-sm font-medium text-foreground">
+                    {userInfo?.MG_NAME}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {userInfo?.M_NO}
+                  </p>
                 </div>
                 <ChevronDown className="w-4 h-4 text-muted-foreground" />
               </Button>
