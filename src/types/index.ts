@@ -1,10 +1,20 @@
 // 사용자 및 카드 관련 타입 정의
 
-export interface UserIfno {
+export interface UserInfo {
   MG_ID: string
   MG_NAME: string
   MG_TYPE: string
   M_NO: string
+}
+
+export interface UserData {
+  M_NO: string
+  M_NAME: string
+  M_DEPARTMENT_NAME: string
+  M_POSITION: string
+  M_GROUP: string
+  M_STATUS: string
+  PHOTO: Blob
 }
 
 export interface CardIssue {
@@ -21,7 +31,7 @@ export interface CardIssue {
 }
 
 export interface BulkIssueRequest {
-  users: Omit<User, 'id' | 'createdAt' | 'updatedAt'>[]
+  users: Omit<UserData, 'id' | 'createdAt' | 'updatedAt'>[]
   cardType: 'employee' | 'visitor' | 'temporary'
   expiresAt?: string
 }

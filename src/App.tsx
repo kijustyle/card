@@ -11,10 +11,9 @@ import { apiService } from './services/api'
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [currentPage, setCurrentPage] = useState('dashboard')
-  const [isLoading, setIsLoading] = useState(true) // 초기 로딩 상태
-  const [userInfo, setUserInfo] = useState(null) // 사용자 정보 저장
+  const [isLoading, setIsLoading] = useState(true)
+  const [userInfo, setUserInfo] = useState(null)
 
-  // 컴포넌트 마운트 시 토큰 확인
   useEffect(() => {
     checkAuthStatus()
   }, [])
@@ -37,7 +36,7 @@ export default function App() {
       if (response.success && response.data) {
         console.log('success:', response.data)
         setIsLoggedIn(true)
-        setUserInfo(response.data.manager) // response.data → response.manager
+        setUserInfo(response.data.manager)
       } else {
         localStorage.removeItem('accessToken')
         localStorage.removeItem('refreshToken')
@@ -57,7 +56,6 @@ export default function App() {
   }
 
   const handleLogout = () => {
-    // 토큰 제거
     localStorage.removeItem('accessToken')
     localStorage.removeItem('refreshToken')
 
@@ -98,31 +96,33 @@ export default function App() {
     return <LoginPage onLogin={handleLogin} />
   }
 
-  // 로그인 후 메인 애플리케이션
+  // 로그인 후 메인 애플리케이션 - 전체 레이아웃을 flex column으로 변경
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100/50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100/50 flex flex-col">
       <div className="fixed inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(220,38,38,0.1),transparent_50%)] pointer-events-none" />
       <div className="fixed inset-0 bg-[radial-gradient(circle_at_80%_0%,rgba(30,64,175,0.1),transparent_50%)] pointer-events-none" />
 
-      <div className="relative z-10">
+      <div className="relative z-10 flex flex-col min-h-screen">
+        {/* 헤더 */}
         <Header onLogout={handleLogout} userInfo={userInfo} />
-        <div className="flex">
+        
+        {/* 메인 콘텐츠 영역 - flex-1로 남은 공간 차지 */}
+        <div className="flex flex-1">
           <Sidebar currentPage={currentPage} onPageChange={setCurrentPage} />
-          <main className="flex-1 min-h-[calc(100vh-4rem)]">
-            <div className="p-6 lg:p-8 xl:p-10 max-w-7xl mx-auto animate-fade-in">
+          <main className="flex-1 flex flex-col">
+            {/* 페이지 콘텐츠 - flex-1로 확장 */}
+            <div className="flex-1 p-6 lg:p-8 xl:p-10 max-w-7xl mx-auto w-full animate-fade-in">
               <div className="animate-slide-up">{renderPage()}</div>
             </div>
 
+            {/* 풋터 - 하단에 고정 */}
             <footer className="mt-auto border-t border-border/50 bg-white/50 backdrop-blur-sm">
               <div className="max-w-7xl mx-auto px-6 lg:px-8 xl:px-10 py-4">
                 <div className="flex items-center justify-between text-sm text-muted-foreground">
                   <p>© 2025 국립소방병원. All rights reserved.</p>
                   <div className="flex items-center gap-4">
                     <span>카드발급 시스템 v1.0</span>
-                    <div
-                      className="w-2 h-2 bg-success rounded-full animate-pulse"
-                      title="시스템 정상"
-                    />
+                    <div className="w-2 h-2 bg-success rounded-full animate-pulse" title="시스템 정상"></div>
                   </div>
                 </div>
               </div>

@@ -38,7 +38,7 @@ const navigationItems = [
     label: '일괄 발급',
     icon: Users,
     description: '직원증 일괄발급',
-    badge: 'New',
+    badge: 'null',
   },
   {
     id: 'history',
@@ -115,14 +115,6 @@ export function Sidebar({ currentPage, onPageChange }: SidebarProps) {
                       {item.description}
                     </div>
                   </div>
-                  {item.badge && (
-                    <Badge
-                      variant={isActive ? 'secondary' : 'outline'}
-                      className="text-xs shrink-0"
-                    >
-                      {item.badge}
-                    </Badge>
-                  )}
                 </Button>
               )
             })}

@@ -1,7 +1,8 @@
 // Spring 백엔드 API 서비스
 
 import {
-  UserIfno,
+  UserInfo,
+  UserData,
   CardIssue,
   BulkIssueRequest,
   ApiResponse,
@@ -176,37 +177,132 @@ class ApiService {
     return result
   }
 
+  // 사용자 프로필 조회
+  async getProfile(token?: string): Promise<ApiResponse<any>> {
+    const authToken = token || localStorage.getItem('accessToken')
+
+    return this.request('/api/v1/auth/me', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${authToken}`,
+      },
+    })
+  }
+
+  // === 새로 추가된 개인 카드 발급 관련 메서드들 ===
+
+  /**
+   * 사번으로 사용자 검색 (TB_MEMBER + TB_PHOTO 조인)
+   */
+  async searchUserByEmployeeId(employeeId: string): Promise<ApiResponse<UserData>> {
+    return this.request(`/api/v1/user/search/${employeeId}`)
+  }
+
+  /**
+   * 카드 발급 이력 조회 (페이징)
+   */
+  async getCardHistory(params: {
+    page?: number
+    size?: number
+    employeeId: string
+  }): Promise<ApiResponse<PagedResponse<CardIssue>>> {
+    const queryParams = new URLSearchParams({
+      page: (params.page || 0).toString(),
+      size: (params.size || 10).toString(),
+      employeeId: params.employeeId,
+    })
+
+    return this.request(`/api/v1/cards/history?${queryParams}`)
+  }
+
+  /**
+   * 개인 카드 발급
+   */
+  async issueCard(params: {
+    employeeId: string
+    cardType?: string
+    issuerNotes?: string
+  }): Promise<ApiResponse<CardIssue>> {
+    return this.request('/api/v1/cards/issue', {
+      method: 'POST',
+      body: JSON.stringify({
+        employeeId: params.employeeId,
+        cardType: params.cardType || 'employee',
+        issuerNotes: params.issuerNotes || '',
+      }),
+    })
+  }
+
+  /**
+   * 카드 다운로드/출력
+   */
+  async downloadCard(cardId: string): Promise<ApiResponse<Blob>> {
+    try {
+      const token = localStorage.getItem('accessToken')
+      
+      const response = await fetch(`${API_BASE_URL}/api/v1/cards/${cardId}/download`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      })
+
+      if (response.ok) {
+        const blob = await response.blob()
+        
+        // 파일 다운로드 처리
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `card-${cardId}.pdf`
+        document.body.appendChild(a)
+        a.click()
+        window.URL.revokeObjectURL(url)
+        document.body.removeChild(a)
+        
+        return {
+          success: true,
+          data: blob,
+          message: '카드가 다운로드되었습니다.'
+        }
+      } else {
+        const errorData = await response.json()
+        return {
+          success: false,
+          message: errorData.message || '카드 다운로드에 실패했습니다.'
+        }
+      }
+    } catch (error) {
+      return {
+        success: false,
+        message: '네트워크 오류가 발생했습니다.'
+      }
+    }
+  }
+
+  // === 기존 메서드들 ===
+
   // 사용자 관리
-  async searchUser(employeeId: string): Promise<ApiResponse<UserIfno>> {
+  async searchUser(employeeId: string): Promise<ApiResponse<UserInfo>> {
     return this.request(`/users/search?employeeId=${employeeId}`)
   }
 
-  async getUserById(userId: string): Promise<ApiResponse<UserIfno>> {
+  async getUserById(userId: string): Promise<ApiResponse<UserInfo>> {
     return this.request(`/users/${userId}`)
   }
 
   async updateUser(
     userId: string,
-    userData: Partial<UserIfno>
-  ): Promise<ApiResponse<UserIfno>> {
+    userData: Partial<UserInfo>
+  ): Promise<ApiResponse<UserInfo>> {
     return this.request(`/users/${userId}`, {
       method: 'PUT',
       body: JSON.stringify(userData),
     })
   }
 
-  // 카드 발급 관련
-  async issueCard(
-    userId: string,
-    cardType: string,
-    expiresAt?: string
-  ): Promise<ApiResponse<CardIssue>> {
-    return this.request('/cards/issue', {
-      method: 'POST',
-      body: JSON.stringify({ userId, cardType, expiresAt }),
-    })
-  }
-
+  // 카드 관리
   async bulkIssueCards(
     request: BulkIssueRequest
   ): Promise<ApiResponse<CardIssue[]>> {
@@ -214,21 +310,6 @@ class ApiService {
       method: 'POST',
       body: JSON.stringify(request),
     })
-  }
-
-  async getCardHistory(
-    params: PaginationParams & { userId?: string; status?: string }
-  ): Promise<ApiResponse<PagedResponse<CardIssue>>> {
-    const queryParams = new URLSearchParams({
-      page: params.page.toString(),
-      size: params.size.toString(),
-      ...(params.sort && { sort: params.sort }),
-      ...(params.direction && { direction: params.direction }),
-      ...(params.userId && { userId: params.userId }),
-      ...(params.status && { status: params.status }),
-    })
-
-    return this.request(`/cards/history?${queryParams}`)
   }
 
   async getCardById(cardId: string): Promise<ApiResponse<CardIssue>> {
@@ -242,7 +323,7 @@ class ApiService {
   }
 
   // 파일 업로드 (엑셀)
-  async uploadExcelFile(file: File): Promise<ApiResponse<UserIfno[]>> {
+  async uploadExcelFile(file: File): Promise<ApiResponse<UserInfo[]>> {
     const formData = new FormData()
     formData.append('file', file)
 
@@ -277,19 +358,6 @@ class ApiService {
     return this.request('/cards/generate-image', {
       method: 'POST',
       body: JSON.stringify(cardData),
-    })
-  }
-
-  // 사용자 프로필 조회 메서드 추가
-  async getProfile(token?: string): Promise<ApiResponse<any>> {
-    const authToken = token || localStorage.getItem('accessToken')
-
-    return this.request('/api/v1/auth/me', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${authToken}`,
-      },
     })
   }
 }
