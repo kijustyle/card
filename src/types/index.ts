@@ -8,13 +8,14 @@ export interface UserInfo {
 }
 
 export interface UserData {
-  M_NO: string
-  M_NAME: string
-  M_DEPARTMENT_NAME: string
-  M_POSITION: string
-  M_GROUP: string
-  M_STATUS: string
-  PHOTO: Blob
+  m_no: string
+  m_name: string
+  m_department_name: string
+  m_position: string
+  m_group: string
+  m_status: string
+  card_cnt: string
+  photo: Blob
 }
 
 export interface CardIssue {
