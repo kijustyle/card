@@ -14,21 +14,33 @@ export interface UserData {
   m_position: string
   m_group: string
   m_status: string
-  card_cnt: string
-  photo: Blob
+  card_count: string
+  photo_blob: Blob
+}
+
+export interface reponseData {
+  success: boolean
+  message: string
 }
 
 export interface CardIssue {
-  id: string
-  userId: string
-  cardType: 'employee' | 'visitor' | 'temporary'
-  cardNumber: string
+  employeeId: string
+  department: string
+  position: string
+  cardCount: number
+  cardType: string
   issuedAt: string
   issuedBy: string
-  expiresAt?: string
-  status: 'active' | 'inactive' | 'expired'
-  qrCode?: string
-  cardImageUrl?: string
+}
+
+export interface CardIssueRequest {
+  employeeId: string        // 사번
+  name: string             // 이름
+  department: string       // 부서
+  position: string         // 직급
+  cardCount: number        // 발급차수
+  cardType: string         // 카드종류 ('P': PVC카드, 'R': RFID카드)
+  photo_blob?: string      // 사진 데이터
 }
 
 export interface BulkIssueRequest {
@@ -52,6 +64,7 @@ export interface ApiResponse<T> {
   timestamp?: string
   requestId?: string
 }
+
 export interface PaginationParams {
   page: number
   size: number

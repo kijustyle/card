@@ -2907,7 +2907,7 @@
   .select-none {
     -webkit-user-select: none;
     user-select: none;
-    padding: 10px;
+    padding-bottom: 5px;
   }
 
   .\[animation-delay\:2s\] {

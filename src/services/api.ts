@@ -4,6 +4,8 @@ import {
   UserInfo,
   UserData,
   CardIssue,
+  reponseData,
+  CardIssueRequest,
   BulkIssueRequest,
   ApiResponse,
   PaginationParams,
@@ -213,23 +215,25 @@ class ApiService {
       employeeId: params.employeeId,
     })
 
-    return this.request(`/api/v1/cards/history?${queryParams}`)
+    return this.request(`/api/v1/card/history?${queryParams}`)
   }
 
   /**
    * 개인 카드 발급
    */
-  async issueCard(params: {
-    employeeId: string
-    cardType?: string
-    issuerNotes?: string
-  }): Promise<ApiResponse<CardIssue>> {
-    return this.request('/api/v1/cards/issue', {
+  async issueCard(params: CardIssueRequest): Promise<ApiResponse<reponseData>> {
+    return this.request('/api/v1/card/issue', {
       method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify({
         employeeId: params.employeeId,
-        cardType: params.cardType || 'employee',
-        issuerNotes: params.issuerNotes || '',
+        name: params.name,
+        department: params.department,
+        position: params.position,
+        cardCount: params.cardCount,
+        cardType: params.cardType,
       }),
     })
   }
