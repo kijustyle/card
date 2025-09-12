@@ -234,6 +234,7 @@ class ApiService {
         position: params.position,
         cardCount: params.cardCount,
         cardType: params.cardType,
+        photo_blob: params.photo_blob,
       }),
     })
   }

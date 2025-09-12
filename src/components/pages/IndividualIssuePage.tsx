@@ -132,6 +132,7 @@ export function IndividualIssuePage() {
         position: searchedUser.position,       // 직급
         cardCount: cardCount,                  // 발급차수
         cardType: cardType,                    // 선택된 카드종류
+        photo_blob: searchedUser.photo_blob,    // 사진
       }
 
       console.log('카드발급 요청 데이터:', issueData)
