@@ -27,13 +27,20 @@ class ApiService {
   ): Promise<ApiResponse<T>> {
     let token = localStorage.getItem('accessToken')
 
+    const isFormData = options.body instanceof FormData
+
     const config: RequestInit = {
       headers: {
-        'Content-Type': 'application/json',
+        // FormData가 아닐 때만 Content-Type 설정
+        ...(!isFormData && { 'Content-Type': 'application/json' }),
         ...(token && { Authorization: `Bearer ${token}` }),
         ...options.headers,
       },
       ...options,
+
+      body: isFormData 
+      ? options.body 
+      : (options.body ? JSON.stringify(options.body) : undefined)
     }
 
     try {
@@ -84,7 +91,6 @@ class ApiService {
 
   private async handleTokenRefresh(): Promise<string | null> {
     if (this.isRefreshing) {
-      // 이미 리프레시 중인 경우 대기
       return new Promise((resolve, reject) => {
         this.failedQueue.push({ resolve, reject })
       })
@@ -103,34 +109,44 @@ class ApiService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${refreshToken}`,
         },
+        body: JSON.stringify({ refreshToken })
       })
 
       if (response.ok) {
         const data = await response.json()
-        const newAccessToken = data.accessToken
-        const newRefreshToken = data.refreshToken
-
-        // 새 토큰들 저장
-        localStorage.setItem('accessToken', newAccessToken)
-        if (newRefreshToken) {
-          localStorage.setItem('refreshToken', newRefreshToken)
+        
+        // 응답 구조 확인 (서버 응답 형식에 맞춤)
+        const tokenData = data.data || data
+        
+        // 새 액세스 토큰 저장
+        if (tokenData.accessToken) {
+          localStorage.setItem('accessToken', tokenData.accessToken)
+        }
+        
+        // 새 리프레시 토큰이 있으면 저장 (Rotating Refresh Token)
+        if (tokenData.refreshToken) {
+          localStorage.setItem('refreshToken', tokenData.refreshToken)
         }
 
         // 대기 중인 요청들에 새 토큰 제공
-        this.failedQueue.forEach(({ resolve }) => resolve(newAccessToken))
+        this.failedQueue.forEach(({ resolve }) => resolve(tokenData.accessToken))
         this.failedQueue = []
 
         this.isRefreshing = false
-        return newAccessToken
+        return tokenData.accessToken
       } else {
-        // 리프레시 토큰도 만료된 경우
+        // 리프레시 실패 - 로그아웃 처리
         this.failedQueue.forEach(({ reject }) =>
           reject(new Error('Token refresh failed'))
         )
         this.failedQueue = []
         this.isRefreshing = false
+        
+        // 사용자가 삭제되었거나 비활성화된 경우
+        const errorData = await response.json()
+        console.error('리프레시 토큰 갱신 실패:', errorData.message)
+        
         return null
       }
     } catch (error) {
@@ -184,21 +200,62 @@ class ApiService {
     const authToken = token || localStorage.getItem('accessToken')
 
     return this.request('/api/v1/auth/me', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${authToken}`,
-      },
+      method: 'GET'
     })
   }
-
-  // === 새로 추가된 개인 카드 발급 관련 메서드들 ===
 
   /**
    * 사번으로 사용자 검색 (TB_MEMBER + TB_PHOTO 조인)
    */
   async searchUserByEmployeeId(employeeId: string): Promise<ApiResponse<UserData>> {
     return this.request(`/api/v1/user/search/${employeeId}`)
+  }
+
+  /**
+   * 검색어로 사용자 검색 (TB_MEMBER + TB_PHOTO 조인)
+   */
+  async searchEmployee(searchTerm: string): Promise<ApiResponse<UserData>> {
+    return this.request(`/api/v1/user/find/${searchTerm}`)
+  }
+
+  /**
+   * 저장된 대량 발급 대상자 리스트 조회
+   */
+  async getSavedBatchList(): Promise<ApiResponse<UserData[]>> {
+    return this.request('/api/v1/batch/list')
+  }
+
+  /**
+   * 일괄 발급 대상자 저장
+   */
+  async saveBatchEmployees(params) {
+    return this.request('/api/v1/batch/save', {
+      method: 'POST',
+      body: params,
+    })
+  }
+
+  /**
+   * 대량 발급 대상자 삭제
+  */
+  async removeBulkIssueEmployee(employeeId: string): Promise<ApiResponse<void>> {
+    return this.request(`/api/v1/batch/delete/${employeeId}`, {
+      method: 'DELETE',
+    })
+  }
+
+  /**
+   * 엑셀 파일 업로드 및 사번 검증
+   */
+  async uploadBatchExcel(file: File): Promise<ApiResponse<any>> {
+  
+    const formData = new FormData()
+    formData.append('file', file)
+
+    return this.request('/api/v1/batch/upload-excel', {
+      method: 'POST',
+      body: formData
+    })
   }
 
   /**
@@ -222,72 +279,20 @@ class ApiService {
    * 개인 카드 발급
    */
   async issueCard(params: CardIssueRequest): Promise<ApiResponse<reponseData>> {
-    return this.request('/api/v1/card/issue', {
+    return this.request(`/api/v1/card/issue`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        employeeId: params.employeeId,
-        name: params.name,
-        department: params.department,
-        position: params.position,
-        cardCount: params.cardCount,
-        cardType: params.cardType,
-        photo_blob: params.photo_blob,
-      }),
+      body: params
     })
   }
 
-  /**
-   * 카드 다운로드/출력
-   */
-  async downloadCard(cardId: string): Promise<ApiResponse<Blob>> {
-    try {
-      const token = localStorage.getItem('accessToken')
-      
-      const response = await fetch(`${API_BASE_URL}/api/v1/cards/${cardId}/download`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      })
-
-      if (response.ok) {
-        const blob = await response.blob()
-        
-        // 파일 다운로드 처리
-        const url = window.URL.createObjectURL(blob)
-        const a = document.createElement('a')
-        a.href = url
-        a.download = `card-${cardId}.pdf`
-        document.body.appendChild(a)
-        a.click()
-        window.URL.revokeObjectURL(url)
-        document.body.removeChild(a)
-        
-        return {
-          success: true,
-          data: blob,
-          message: '카드가 다운로드되었습니다.'
-        }
-      } else {
-        const errorData = await response.json()
-        return {
-          success: false,
-          message: errorData.message || '카드 다운로드에 실패했습니다.'
-        }
-      }
-    } catch (error) {
-      return {
-        success: false,
-        message: '네트워크 오류가 발생했습니다.'
-      }
-    }
+  // 대량 발급을 위한 개별 전송 *batch
+  async issueBatchCard(params: CardIssueRequest): Promise<ApiResponse<reponseData>> {
+    return this.request(`/api/v1/card/issue`, {
+      method: 'POST',
+      body: params
+    })
   }
-
-  // === 기존 메서드들 ===
-
+    
   // 사용자 관리
   async searchUser(employeeId: string): Promise<ApiResponse<UserInfo>> {
     return this.request(`/users/search?employeeId=${employeeId}`)
@@ -324,18 +329,6 @@ class ApiService {
   async deactivateCard(cardId: string): Promise<ApiResponse<void>> {
     return this.request(`/cards/${cardId}/deactivate`, {
       method: 'PUT',
-    })
-  }
-
-  // 파일 업로드 (엑셀)
-  async uploadExcelFile(file: File): Promise<ApiResponse<UserInfo[]>> {
-    const formData = new FormData()
-    formData.append('file', file)
-
-    return this.request('/files/upload-excel', {
-      method: 'POST',
-      headers: {}, // Content-Type을 자동으로 설정하도록 빈 객체
-      body: formData,
     })
   }
 

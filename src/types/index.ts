@@ -14,7 +14,7 @@ export interface UserData {
   m_position: string
   m_group: string
   m_status: string
-  card_count: string
+  card_count: number
   photo_blob: Blob
 }
 

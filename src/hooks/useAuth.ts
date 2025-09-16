@@ -1,11 +1,11 @@
 // 인증 상태 관리 훅
 
 import { useState, useEffect, createContext, useContext } from 'react';
-import { User } from '../types';
+import { UserInfo } from '../types';
 import { apiService } from '../services/api';
 
 interface AuthContextType {
-  user: User | null;
+  user: UserInfo | null;
   isLoading: boolean;
   login: (employeeId: string, password: string) => Promise<boolean>;
   logout: () => Promise<void>;
@@ -23,7 +23,7 @@ export const useAuth = () => {
 };
 
 export const useAuthState = () => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<UserInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -41,8 +41,15 @@ export const useAuthState = () => {
     setIsLoading(true);
     try {
       const response = await apiService.login(employeeId, password);
+
+      console.log(response.data);
+      
       if (response.success && response.data) {
-        localStorage.setItem('authToken', response.data.token);
+        localStorage.setItem('accessToken', response.data.tokens.accessToken);
+        localStorage.setItem('refreshToken', response.data.tokens.refreshToken);
+      
+        // 사용자 정보도 저장 (필요시)
+        localStorage.setItem('userInfo', JSON.stringify(response.data.manager));
         setUser(response.data.user);
         return true;
       }
@@ -62,10 +69,15 @@ export const useAuthState = () => {
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
+      // 모든 저장된 정보 제거
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('userInfo');
       setUser(null);
       setIsLoading(false);
     }
   };
+
 
   return {
     user,

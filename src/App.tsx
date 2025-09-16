@@ -19,35 +19,19 @@ export default function App() {
   }, [])
 
   const checkAuthStatus = async () => {
-    try {
-      const token = localStorage.getItem('accessToken')
+    
+    const token = localStorage.getItem('accessToken');
+    const userInfo = localStorage.getItem('userInfo');  
 
-      console.log('토큰:', token)
-
-      if (!token) {
-        setIsLoading(false)
-        return
-      }
-
-      const response = await apiService.getProfile(token)
-
-      console.log('응답:', response)
-
-      if (response.success && response.data) {
-        console.log('success:', response.data)
+    if (token && userInfo) {
+      try {
         setIsLoggedIn(true)
-        setUserInfo(response.data.manager)
-      } else {
-        localStorage.removeItem('accessToken')
-        localStorage.removeItem('refreshToken')
+        setUserInfo(userInfo)
+      } catch (error) {
+        console.error('Failed to parse user info:', error);
       }
-    } catch (error) {
-      console.error('토큰 검증 실패:', error)
-      localStorage.removeItem('accessToken')
-      localStorage.removeItem('refreshToken')
-    } finally {
-      setIsLoading(false)
     }
+    setIsLoading(false);
   }
 
   const handleLogin = (userData) => {

@@ -62,7 +62,7 @@ export function IndividualIssuePage() {
     setUserHistory([])
 
     try {
-      // 실제 API 호출
+      
       const response = await apiService.searchUserByEmployeeId(searchId)
 
       if (response.success && response.data) {
@@ -236,9 +236,9 @@ export function IndividualIssuePage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-semibold mb-2">개인 카드 발급</h2>
+          <h2 className="text-2xl font-semibold mb-2">직원증 발급</h2>
           <p className="text-muted-foreground">
-            사번으로 직원을 조회하여 카드를 발급합니다.
+            직원을 조회하여 직원증을 즉시 발급합니다.
           </p>
         </div>
       </div>
@@ -247,16 +247,16 @@ export function IndividualIssuePage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Search className="h-5 w-5" />
-            직원 조회
+            직원 검색
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex gap-4">
             <div className="flex-1">
-              <Label htmlFor="employee-id">사번</Label>
+              <Label htmlFor="employee-id">검색어</Label>
               <Input
                 id="employee-id"
-                placeholder="사번을 입력하세요"
+                placeholder="이름, 사번을 입력하세요"
                 value={searchId}
                 onChange={(e) => setSearchId(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSearch()}

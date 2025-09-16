@@ -13,7 +13,6 @@ import {
 import { AlertCircle, Shield, Eye, EyeOff, Lock, User } from 'lucide-react'
 import { Alert, AlertDescription } from '../ui/alert'
 import { apiService } from '../../services/api'
-import { mockApiDelay, findMockUser } from '../../utils/mockData'
 import hospitalLogo from '../../assets/logo_md.png'
 
 interface LoginPageProps {
@@ -36,30 +35,31 @@ export function LoginPage({ onLogin }: LoginPageProps) {
     setIsLoading(true)
 
     try {
-      // Mock 데이터 부분 주석 처리
-      // await mockApiDelay(1000)
-      // const user = findMockUser(employeeId)
-      // if (user && password === 'admin123') {
-      //   onLogin(user)
-      // } else {
-      //   setError('사번 또는 비밀번호가 올바르지 않습니다.')
-      // }
-
       // 실제 백엔드 API 연동
       const response = await apiService.login(employeeId, password)
-      const data = response.data
 
-      if (response.success && response.data.tokens) {
-        if (response.data.tokens.accessToken) {
+      if (response.success && response.data) {
+        // 토큰 저장
+        if (response.data.tokens) {
           localStorage.setItem('accessToken', response.data.tokens.accessToken)
-          localStorage.setItem(
-            'refreshToken',
-            response.data.tokens.refreshToken
-          )
+          localStorage.setItem('refreshToken', response.data.tokens.refreshToken)
         }
 
-        // 관리자 정보 전달
-        onLogin(response.manager) // response.data.manager 아님
+        // 관리자 정보 저장 (로그인한 사용자 정보를 localStorage에도 저장)
+        if (response.data.manager) {
+          // localStorage에 사용자 정보 저장 (나중에 API 호출 시 사용)
+          localStorage.setItem('userInfo', JSON.stringify({
+            mgId: response.data.manager.MG_ID,
+            mgName: response.data.manager.MG_NAME,
+            mgType: response.data.manager.MG_TYPE,
+            mNo: response.data.manager.M_NO
+          }))
+
+          // 상위 컴포넌트로 관리자 정보 전달
+          onLogin(response.data.manager)
+        } else {
+          setError('관리자 정보를 받아올 수 없습니다.')
+        }
       } else {
         setError(response.message || '로그인에 실패했습니다.')
       }
