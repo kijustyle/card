@@ -81,3 +81,18 @@ export interface PagedResponse<T> {
   hasNext: boolean
   hasPrevious: boolean
 }
+
+export interface CardIssueHistory {
+  id: string;
+  mNo: string;           // 사번 (TB_CARD_ISSUE.M_NO)
+  mName: string;         // 이름 (TB_MEMBER.M_NAME에서 조인)
+  mDepartment: string;   // 부서 (TB_CARD_ISSUE.M_DEPARTMENT)
+  mPosition: string;     // 직급 (TB_CARD_ISSUE.M_POSITION)
+  cardCount: number;     // 카드 수량 (TB_CARD_ISSUE.CARD_COUNT)
+  cardSno: string;       // 카드 시리얼 번호 (TB_CARD_ISSUE.CARD_SNO)
+  cardType: string;      // 카드 타입 (TB_CARD_ISSUE.CARD_TYPE)
+  createId: string;      // 발급자 ID (TB_CARD_ISSUE.CREATE_ID)
+  createDt: string;      // 발급일 (TB_CARD_ISSUE.CREATE_DT)
+}
+
+

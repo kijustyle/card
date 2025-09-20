@@ -260,8 +260,6 @@ export function BulkIssuePage() {
       currentProgress: 0  // 명시적으로 0
     });
 
-    
-    
     // 초기화 후 잠깐 대기
     await new Promise(resolve => setTimeout(resolve, 500));
     
@@ -276,7 +274,7 @@ export function BulkIssuePage() {
         }));
         
         try {
-          const response = await apiService.issueCard({
+          const response = await apiService.issueBatchCard({
             employeeId: user.m_no,
           });
           
@@ -305,6 +303,8 @@ export function BulkIssuePage() {
         
         await new Promise(resolve => setTimeout(resolve, 800));
       }
+      
+      await fetchSavedEmployees();
       
       setShowProgress(false);
 

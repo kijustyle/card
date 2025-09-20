@@ -10,9 +10,9 @@ import {
   Calendar,
   ArrowUpRight,
   Activity,
-  AlertTriangle,
   Target,
-  Zap
+  BarChart3,
+  Shield
 } from "lucide-react";
 import { Badge } from "../ui/badge";
 import { apiService } from '../../services/api';
@@ -39,14 +39,14 @@ export function Dashboard({ onPageChange }: DashboardProps) {
       await mockApiDelay(1000);
       
       setStats(mockDashboardStats);
-      const recentHistory = getMockCardHistory().slice(0, 5); // 최근 5개만
+      const recentHistory = getMockCardHistory().slice(0, 4); // 4개만
       setRecentIssues(recentHistory);
 
       // 실제 API 호출 (Spring 백엔드 연동 시 사용)
       /*
       const [statsResponse, historyResponse] = await Promise.all([
         apiService.getDashboardStats(),
-        apiService.getCardHistory({ page: 0, size: 5, sort: 'issuedAt', direction: 'desc' })
+        apiService.getCardHistory({ page: 0, size: 4, sort: 'issuedAt', direction: 'desc' })
       ]);
       
       if (statsResponse.success && statsResponse.data) {
@@ -64,7 +64,7 @@ export function Dashboard({ onPageChange }: DashboardProps) {
     }
   };
 
-  // 모의 데이터
+  // 최근 활동 데이터 (4건)
   const recentActivity = [
     { 
       id: 1, 
@@ -77,9 +77,9 @@ export function Dashboard({ onPageChange }: DashboardProps) {
     { 
       id: 2, 
       name: "이구급", 
-      action: "카드 발급 요청", 
+      action: "카드 발급 완료", 
       time: "30분 전",
-      type: "pending",
+      type: "success",
       department: "간호부"
     },
     { 
@@ -93,37 +93,42 @@ export function Dashboard({ onPageChange }: DashboardProps) {
     { 
       id: 4, 
       name: "최응급", 
-      action: "카드 발급 대기", 
+      action: "카드 발급 완료", 
       time: "2시간 전",
-      type: "waiting",
+      type: "success",
       department: "중환자의학과"
     },
   ];
 
-  const pendingRequests = [
+  // 시스템 현황 데이터
+  const systemStatus = [
     { 
       id: 1, 
-      name: "정민호", 
-      department: "응급의학과", 
-      requestDate: "2024-01-20", 
-      type: "신규발급",
-      priority: "high"
+      service: "카드 발급 시스템", 
+      status: "정상",
+      uptime: "99.9%",
+      lastCheck: "방금 전"
     },
     { 
       id: 2, 
-      name: "한지민", 
-      department: "중환자의학과", 
-      requestDate: "2024-01-20", 
-      type: "재발급",
-      priority: "normal"
+      service: "사용자 인증", 
+      status: "정상", 
+      uptime: "100%",
+      lastCheck: "1분 전"
     },
     { 
       id: 3, 
-      name: "송윤아", 
-      department: "화상외과", 
-      requestDate: "2024-01-19", 
-      type: "분실재발급",
-      priority: "urgent"
+      service: "데이터베이스", 
+      status: "정상", 
+      uptime: "99.8%",
+      lastCheck: "방금 전"
+    },
+    { 
+      id: 4, 
+      service: "파일 업로드", 
+      status: "정상", 
+      uptime: "99.9%",
+      lastCheck: "30초 전"
     },
   ];
 
@@ -131,17 +136,7 @@ export function Dashboard({ onPageChange }: DashboardProps) {
     switch (type) {
       case 'success': return <CheckCircle className="w-4 h-4 text-success" />;
       case 'pending': return <Clock className="w-4 h-4 text-warning" />;
-      case 'waiting': return <AlertTriangle className="w-4 h-4 text-info" />;
       default: return <Activity className="w-4 h-4 text-muted-foreground" />;
-    }
-  };
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'urgent': return 'text-destructive';
-      case 'high': return 'text-warning';
-      case 'normal': return 'text-muted-foreground';
-      default: return 'text-muted-foreground';
     }
   };
 
@@ -213,21 +208,21 @@ export function Dashboard({ onPageChange }: DashboardProps) {
           </CardContent>
         </Card>
 
-        <Card className="relative overflow-hidden border-0 shadow-lg bg-gradient-to-br from-warning/5 via-white to-warning/10 animate-slide-up [animation-delay:200ms]">
-          <div className="absolute top-0 right-0 w-20 h-20 bg-warning/10 rounded-full -translate-y-8 translate-x-8" />
+        <Card className="relative overflow-hidden border-0 shadow-lg bg-gradient-to-br from-blue-500/5 via-white to-blue-500/10 animate-slide-up [animation-delay:200ms]">
+          <div className="absolute top-0 right-0 w-20 h-20 bg-blue-500/10 rounded-full -translate-y-8 translate-x-8" />
           <CardContent className="p-6 relative">
             <div className="flex items-center justify-between">
               <div className="space-y-2">
-                <p className="text-sm font-medium text-muted-foreground">처리 대기</p>
-                <p className="text-3xl font-bold text-foreground">5</p>
+                <p className="text-sm font-medium text-muted-foreground">활성 카드</p>
+                <p className="text-3xl font-bold text-foreground">1,156</p>
                 <div className="flex items-center gap-1 text-xs">
-                  <Clock className="w-3 h-3 text-warning" />
-                  <span className="text-warning font-medium">긴급</span>
-                  <span className="text-muted-foreground">처리 필요</span>
+                  <Shield className="w-3 h-3 text-blue-500" />
+                  <span className="text-blue-500 font-medium">유효</span>
+                  <span className="text-muted-foreground">카드</span>
                 </div>
               </div>
-              <div className="p-3 bg-warning/10 rounded-xl">
-                <Clock className="w-6 h-6 text-warning" />
+              <div className="p-3 bg-blue-500/10 rounded-xl">
+                <Shield className="w-6 h-6 text-blue-500" />
               </div>
             </div>
           </CardContent>
@@ -262,9 +257,9 @@ export function Dashboard({ onPageChange }: DashboardProps) {
               <div className="p-2 bg-primary/10 rounded-lg">
                 <Activity className="w-5 h-5 text-primary" />
               </div>
-              최근 활동
+              최근 발급 현황
             </CardTitle>
-            <CardDescription>실시간 카드 발급 활동 현황</CardDescription>
+            <CardDescription>실시간 카드 발급 활동 현황 (최근 4건)</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {recentActivity.map((activity) => (
@@ -292,57 +287,51 @@ export function Dashboard({ onPageChange }: DashboardProps) {
               className="w-full mt-6 group"
               onClick={() => onPageChange('history')}
             >
-              모든 활동 보기
+              전체 이력 보기
               <ArrowUpRight className="w-4 h-4 ml-2 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
             </Button>
           </CardContent>
         </Card>
 
-        {/* Enhanced Pending Requests */}
+        {/* System Status */}
         <Card className="border-0 shadow-lg animate-slide-up [animation-delay:500ms]">
           <CardHeader className="pb-4">
             <CardTitle className="flex items-center gap-3">
-              <div className="p-2 bg-warning/10 rounded-lg">
-                <Zap className="w-5 h-5 text-warning" />
+              <div className="p-2 bg-success/10 rounded-lg">
+                <Shield className="w-5 h-5 text-success" />
               </div>
-              처리 대기 요청
+              시스템 상태
             </CardTitle>
-            <CardDescription>긴급 처리가 필요한 카드 발급 요청</CardDescription>
+            <CardDescription>각 서비스별 운영 현황 및 가동률</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {pendingRequests.map((request) => (
+            {systemStatus.map((system) => (
               <div 
-                key={request.id} 
+                key={system.id} 
                 className="flex items-center justify-between p-4 rounded-lg bg-accent/30 border border-border/50 transition-all hover:bg-accent/50"
               >
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
-                    <p className="font-medium text-sm">{request.name}</p>
-                    <Badge 
-                      variant={request.priority === 'urgent' ? 'destructive' : 'outline'} 
-                      className="text-xs"
-                    >
-                      {request.type}
+                    <p className="font-medium text-sm">{system.service}</p>
+                    <Badge variant="outline" className="text-xs bg-success/10 text-success border-success/20">
+                      {system.status}
                     </Badge>
                   </div>
                   <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                    <span>{request.department}</span>
+                    <span>가동률: {system.uptime}</span>
                     <span>•</span>
-                    <span className={getPriorityColor(request.priority)}>
-                      {request.priority === 'urgent' ? '긴급' : 
-                       request.priority === 'high' ? '높음' : '보통'}
-                    </span>
+                    <span>마지막 확인: {system.lastCheck}</span>
                   </div>
                 </div>
-                <span className="text-xs text-muted-foreground tabular-nums">{request.requestDate}</span>
+                <div className="w-3 h-3 bg-success rounded-full animate-pulse" />
               </div>
             ))}
             <Button 
               variant="outline" 
               className="w-full mt-6 group"
-              onClick={() => onPageChange('history')}
+              onClick={() => onPageChange('system')}
             >
-              모든 요청 보기
+              시스템 관리
               <ArrowUpRight className="w-4 h-4 ml-2 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
             </Button>
           </CardContent>

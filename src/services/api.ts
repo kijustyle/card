@@ -10,6 +10,7 @@ import {
   ApiResponse,
   PaginationParams,
   PagedResponse,
+  CardIssueHistory
 } from '../types'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
@@ -275,6 +276,67 @@ class ApiService {
     return this.request(`/api/v1/card/history?${queryParams}`)
   }
 
+  async getCardIssueHistory(params: {
+    page?: number;
+    size?: number;
+    dateFrom?: string;
+    dateTo?: string;
+    search?: string;
+  }): Promise<ApiResponse<PagedResponse<CardIssueHistory>>> {
+    const queryParams = new URLSearchParams();
+    
+    queryParams.append('page', (params.page || 0).toString());
+    queryParams.append('size', (params.size || 10).toString());
+    
+    if (params.dateFrom) {
+      queryParams.append('dateFrom', params.dateFrom);
+    }
+    if (params.dateTo) {
+      queryParams.append('dateTo', params.dateTo);
+    }
+    if (params.search && params.search.trim()) {
+      queryParams.append('search', params.search.trim());
+    }
+
+    return this.request(`/api/v1/card/issue-history?${queryParams}`);
+  }
+
+  /**
+   * 카드 발급 이력 엑셀 다운로드
+   */
+  async exportCardIssueHistory(params: {
+    dateFrom?: string;
+    dateTo?: string;
+    search?: string;
+  }): Promise<Blob> {
+    const queryParams = new URLSearchParams();
+    
+    if (params.dateFrom) {
+      queryParams.append('dateFrom', params.dateFrom);
+    }
+    if (params.dateTo) {
+      queryParams.append('dateTo', params.dateTo);
+    }
+    if (params.search && params.search.trim()) {
+      queryParams.append('search', params.search.trim());
+    }
+    
+    let token = localStorage.getItem('accessToken');
+    
+    const response = await fetch(`${API_BASE_URL}/api/v1/card/issue-history/export?${queryParams}`, {
+      method: 'GET',
+      headers: {
+        ...(token && { Authorization: `Bearer ${token}` }),
+      }
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+    
+    return response.blob();
+  }
+
   /**
    * 개인 카드 발급
    */
@@ -287,7 +349,7 @@ class ApiService {
 
   // 대량 발급을 위한 개별 전송 *batch
   async issueBatchCard(params: CardIssueRequest): Promise<ApiResponse<reponseData>> {
-    return this.request(`/api/v1/card/issue`, {
+    return this.request(`/api/v1/card/issueBatchCard`, {
       method: 'POST',
       body: params
     })
