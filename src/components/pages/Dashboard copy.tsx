@@ -153,27 +153,11 @@ export function Dashboard({ onPageChange }: DashboardProps) {
   };
 
   const formatPeriodLabel = (period: string) => {
-    try {
-      if (selectedPeriod === '1month') {
-        const date = new Date(period);
-        if (isNaN(date.getTime())) {
-          return period;
-        }
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        return `${month}/${day}`;
-      } else {
-        if (period.includes('-') && period.length === 7) {
-          const [year, month] = period.split('-');
-          return `${month}월`;
-        }
-        return period;
-      }
-    } catch (error) {
-      console.error('날짜 포맷 오류:', error, period);
-      return period;
+    if (selectedPeriod === '1month') {
+      return new Date(period).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' });
     }
-  }
+    return period;
+  };
 
   const getPeriodButtonText = (period: string) => {
     switch (period) {
@@ -182,7 +166,7 @@ export function Dashboard({ onPageChange }: DashboardProps) {
       case '1year': return '1년';
       default: return period;
     }
-  }
+  };
 
   const formatTimeAgo = (dateString: string) => {
     const now = new Date();
@@ -222,7 +206,7 @@ export function Dashboard({ onPageChange }: DashboardProps) {
               <div className="w-3 h-3 rounded-full bg-gradient-to-r from-blue-500 to-purple-500"></div>
               <span className="text-sm text-gray-600">발급 건수</span>
             </div>
-            <div className="text-lg font-bold bg-gray-900 text-white">
+            <div className="text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
               {formatNumber(data.value)}건
             </div>
           </div>
@@ -297,8 +281,8 @@ export function Dashboard({ onPageChange }: DashboardProps) {
 
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="relative overflow-hidden border-0 shadow-lg bg-gradient-to-br from-primary/5 via-white to-primary/10 animate-slide-up">
-          <div className="absolute top-0 right-0 w-20 h-20 bg-primary/10 rounded-full -translate-y-8 translate-x-8" />
+        <Card className="relative overflow-hidden border-0 shadow-lg bg-gradient-to-br from-blue-500/5 via-white to-blue-500/10 animate-slide-up">
+          <div className="absolute top-0 right-0 w-20 h-20 bg-blue-500/10 rounded-full -translate-y-8 translate-x-8" />
           <CardContent className="p-6 relative">
             <div className="flex items-center justify-between">
               <div className="space-y-2">
@@ -318,8 +302,8 @@ export function Dashboard({ onPageChange }: DashboardProps) {
           </CardContent>
         </Card>
 
-        <Card className="relative overflow-hidden border-0 shadow-lg bg-gradient-to-br from-secondary/5 via-white to-secondary/10 animate-slide-up [animation-delay:100ms]">
-          <div className="absolute top-0 right-0 w-20 h-20 bg-secondary/10 rounded-full -translate-y-8 translate-x-8" />
+        <Card className="relative overflow-hidden border-0 shadow-lg bg-gradient-to-br from-green-500/5 via-white to-green-500/10 animate-slide-up [animation-delay:100ms]">
+          <div className="absolute top-0 right-0 w-20 h-20 bg-green-500/10 rounded-full -translate-y-8 translate-x-8" />
           <CardContent className="p-6 relative">
             <div className="flex items-center justify-between">
               <div className="space-y-2">
@@ -339,8 +323,8 @@ export function Dashboard({ onPageChange }: DashboardProps) {
           </CardContent>
         </Card>
 
-        <Card className="relative overflow-hidden border-0 shadow-lg bg-gradient-to-br from-warning/5 via-white to-warning/10 animate-slide-up [animation-delay:300ms]">
-          <div className="absolute top-0 right-0 w-20 h-20 bg-warning/10 rounded-full -translate-y-8 translate-x-8" />
+        <Card className="relative overflow-hidden border-0 shadow-lg bg-gradient-to-br from-purple-500/5 via-white to-purple-500/10 animate-slide-up [animation-delay:200ms]">
+          <div className="absolute top-0 right-0 w-20 h-20 bg-purple-500/10 rounded-full -translate-y-8 translate-x-8" />
           <CardContent className="p-6 relative">
             <div className="flex items-center justify-between">
               <div className="space-y-2">
@@ -349,19 +333,19 @@ export function Dashboard({ onPageChange }: DashboardProps) {
                   {isLoading ? '...' : formatNumber(stats?.activeCards)}
                 </p>
                 <div className="flex items-center gap-1 text-xs">
-                  <Shield className="w-3 h-3 text-yellow-500" />
-                  <span className="text-yellow-500 font-medium">개</span>
+                  <Shield className="w-3 h-3 text-purple-500" />
+                  <span className="text-purple-500 font-medium">개</span>
                 </div>
               </div>
-              <div className="p-3 bg-yellow-500/10 rounded-xl">
-                <Shield className="w-6 h-6 text-yellow-500" />
+              <div className="p-3 bg-purple-500/10 rounded-xl">
+                <Shield className="w-6 h-6 text-purple-500" />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="relative overflow-hidden border-0 shadow-lg bg-gradient-to-br from-success/5 via-white to-success/10 animate-slide-up [animation-delay:300ms]">
-          <div className="absolute top-0 right-0 w-20 h-20 bg-success/10 rounded-full -translate-y-8 translate-x-8" />
+        <Card className="relative overflow-hidden border-0 shadow-lg bg-gradient-to-br from-orange-500/5 via-white to-orange-500/10 animate-slide-up [animation-delay:300ms]">
+          <div className="absolute top-0 right-0 w-20 h-20 bg-orange-500/10 rounded-full -translate-y-8 translate-x-8" />
           <CardContent className="p-6 relative">
             <div className="flex items-center justify-between">
               <div className="space-y-2">
@@ -384,7 +368,7 @@ export function Dashboard({ onPageChange }: DashboardProps) {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Chart Section - 리퀴드 글래스 디자인 */}
-        <Card className="lg:col-span-2 border-0 shadow-2xl border shadow-sm bg-white overflow-hidden animate-slide-up [animation-delay:400ms]">
+        <Card className="lg:col-span-2 border-0 shadow-2xl bg-gradient-to-br from-white/40 via-white/60 to-white/80 backdrop-blur-xl ring-1 ring-white/20 overflow-hidden animate-slide-up [animation-delay:400ms]">
           {/* 배경 그라데이션 효과 */}
           <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-purple-500/5 to-pink-500/5 pointer-events-none" />
           <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-blue-500/10 to-transparent rounded-full -translate-y-32 translate-x-32 pointer-events-none" />
@@ -394,8 +378,8 @@ export function Dashboard({ onPageChange }: DashboardProps) {
             <div className="flex items-center justify-between">
               <div className="space-y-2">
                 <CardTitle className="flex items-center gap-3 text-xl">
-                  <div className="p-2 bg-primary/10 rounded-lg">
-                    <Activity className="w-5 h-5 text-primary" />
+                  <div className="p-3 bg-gradient-to-br from-blue-500/20 to-purple-500/20 backdrop-blur-sm rounded-xl ring-1 ring-white/30">
+                    <Activity className="w-6 h-6 text-blue-500" />
                   </div>
                   <span className="bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent font-bold">
                     발급 현황 분석
@@ -413,13 +397,16 @@ export function Dashboard({ onPageChange }: DashboardProps) {
                     size="sm"
                     onClick={() => setSelectedPeriod(period)}
                     disabled={isChartLoading}
-                    className={`transition-all duration-200 ${
-                      selectedPeriod === period.key
-                        ? 'bg-blue-600 text-white shadow-sm'
-                        : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
+                    className={`relative overflow-hidden transition-all duration-300 ${
+                      selectedPeriod === period
+                        ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg ring-2 ring-blue-500/20'
+                        : 'bg-white/50 backdrop-blur-sm border-white/30 hover:bg-white/70'
                     }`}
                   >
-                    <span>{getPeriodButtonText(period)}</span>
+                    <span className="relative z-10">{getPeriodButtonText(period)}</span>
+                    {selectedPeriod === period && (
+                      <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 opacity-90" />
+                    )}
                   </Button>
                 ))}
               </div>
@@ -452,9 +439,9 @@ export function Dashboard({ onPageChange }: DashboardProps) {
                   >
                     <defs>
                       <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#374151" stopOpacity={0.8} />
-                        <stop offset="50%" stopColor="#6b7280" stopOpacity={0.4} />
-                        <stop offset="100%" stopColor="#9ca3af" stopOpacity={0.1} />
+                        <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.8} />
+                        <stop offset="50%" stopColor="#8b5cf6" stopOpacity={0.6} />
+                        <stop offset="100%" stopColor="#ec4899" stopOpacity={0.1} />
                       </linearGradient>
                       
                       <linearGradient id="lineGradient" x1="0" y1="0" x2="1" y2="0">
@@ -479,7 +466,7 @@ export function Dashboard({ onPageChange }: DashboardProps) {
                     
                     <CartesianGrid 
                       strokeDasharray="3 3" 
-                      stroke="#374151"
+                      stroke="url(#lineGradient)"
                       strokeOpacity={0.1}
                       vertical={false}
                     />
@@ -488,13 +475,9 @@ export function Dashboard({ onPageChange }: DashboardProps) {
                       dataKey="period" 
                       axisLine={false}
                       tickLine={false}
-                      tick={{ fontSize: 11, fill: '#6b7280' }}
+                      tick={{ fontSize: 12, fill: '#6b7280' }}
                       tickMargin={15}
                       tickFormatter={formatPeriodLabel}
-                      interval={0}
-                      angle={-45}
-                      textAnchor="end"
-                      height={60}
                     />
                     
                     <YAxis 
@@ -509,7 +492,7 @@ export function Dashboard({ onPageChange }: DashboardProps) {
                     <Area
                       type="monotone"
                       dataKey="count"
-                      stroke="#374151"
+                      stroke="url(#lineGradient)"
                       strokeWidth={3}
                       fill="url(#chartGradient)"
                       fillOpacity={0.6}
@@ -521,7 +504,7 @@ export function Dashboard({ onPageChange }: DashboardProps) {
                     <Line
                       type="monotone"
                       dataKey="count"
-                      stroke="#374151"
+                      stroke="url(#lineGradient)"
                       strokeWidth={4}
                       dot={<CustomDot />}
                       activeDot={{ 
@@ -655,11 +638,11 @@ export function Dashboard({ onPageChange }: DashboardProps) {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Button 
               variant="outline" 
-              className="h-auto p-6 group border-2 hover:border-primary/50 transition-all"
+              className="h-auto p-6 group border-2 hover:border-blue-500/50 transition-all"
               onClick={() => onPageChange('individual')}
             >
               <div className="space-y-2 text-center">
-                <CreditCard className="w-8 h-8 mx-auto text-primary group-hover:scale-110 transition-transform" />
+                <CreditCard className="w-8 h-8 mx-auto text-blue-500 group-hover:scale-110 transition-transform" />
                 <div>
                   <p className="font-medium">개인 카드 발급</p>
                   <p className="text-xs text-muted-foreground">즉시 발급</p>
@@ -669,11 +652,11 @@ export function Dashboard({ onPageChange }: DashboardProps) {
             
             <Button 
               variant="outline" 
-              className="h-auto p-6 group border-2 hover:border-secondary/50 transition-all"
+              className="h-auto p-6 group border-2 hover:border-green-500/50 transition-all"
               onClick={() => onPageChange('bulk')}
             >
               <div className="space-y-2 text-center">
-                <Users className="w-8 h-8 mx-auto text-secondary group-hover:scale-110 transition-transform" />
+                <Users className="w-8 h-8 mx-auto text-green-500 group-hover:scale-110 transition-transform" />
                 <div>
                   <p className="font-medium">대량 카드 발급</p>
                   <p className="text-xs text-muted-foreground">일괄 처리</p>
@@ -683,11 +666,11 @@ export function Dashboard({ onPageChange }: DashboardProps) {
             
             <Button 
               variant="outline" 
-              className="h-auto p-6 group border-2 hover:border-success/50 transition-all"
+              className="h-auto p-6 group border-2 hover:border-purple-500/50 transition-all"
               onClick={() => onPageChange('history')}
             >
               <div className="space-y-2 text-center">
-                <TrendingUp className="w-8 h-8 mx-auto text-success group-hover:scale-110 transition-transform" />
+                <TrendingUp className="w-8 h-8 mx-auto text-purple-500 group-hover:scale-110 transition-transform" />
                 <div>
                   <p className="font-medium">발급 이력</p>
                   <p className="text-xs text-muted-foreground">통계 및 관리</p>

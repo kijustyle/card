@@ -172,14 +172,6 @@ export function HistoryPage() {
     setCurrentPage(page);
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-lg">로딩 중...</div>
-      </div>
-    );
-  }
-
   // 디버깅용 로그
   console.log('렌더링 상태:', {
     history: history,

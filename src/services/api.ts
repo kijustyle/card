@@ -237,6 +237,20 @@ class ApiService {
   }
 
   /**
+   * 저장된 대량 발급 대상자의 카드 타입 변경
+   */
+  async updateCardType(params: {
+    employeeId: string;
+    cardType: string; // 'R' 또는 'P'
+  }): Promise<ApiResponse<any>> {
+    return this.request('/api/v1/batch/update-card-type', {
+      method: 'PUT',
+      body: params,
+    })
+  }
+
+
+  /**
    * 대량 발급 대상자 삭제
   */
   async removeBulkIssueEmployee(employeeId: string): Promise<ApiResponse<void>> {
@@ -394,19 +408,6 @@ class ApiService {
     })
   }
 
-  // 대시보드 통계
-  async getDashboardStats(): Promise<
-    ApiResponse<{
-      totalUsers: number
-      totalCards: number
-      activeCards: number
-      todayIssued: number
-      monthlyIssued: number
-    }>
-  > {
-    return this.request('/dashboard/stats')
-  }
-
   // 카드 이미지 생성
   async generateCardImage(cardData: {
     name: string
@@ -420,6 +421,43 @@ class ApiService {
       body: JSON.stringify(cardData),
     })
   }
+
+  // 대시보드 관련 메서드들 추가
+  async getDashboardStats(): Promise<ApiResponse<{
+    todayIssued: number;
+    monthlyIssued: number;
+    activeCards: number;
+    totalUsers: number;
+  }>> {
+    return this.request('/api/v1/dashboard/stats')
+  }
+
+  /**
+   * 기간별 발급 차트 데이터 조회
+   */
+  async getIssueChartData(period: '1month' | '6months' | '1year' = '1month'): Promise<ApiResponse<Array<{
+    period: string;
+    count: number;
+  }>>> {
+    return this.request(`/api/v1/dashboard/chart?period=${period}`)
+  }
+
+  /**
+   * 최근 발급 현황 조회
+   */
+  async getRecentIssues(limit: number = 5): Promise<ApiResponse<Array<{
+    issueId: string;
+    employeeId: string;
+    name: string;
+    department: string;
+    cardType: string;
+    cardTypeName: string;
+    issuedAt: string;
+  }>>> {
+    return this.request(`/api/v1/dashboard/recent-issues?limit=${limit}`)
+  }
+
+  
 }
 
 export const apiService = new ApiService()

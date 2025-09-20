@@ -28,9 +28,11 @@ export function BulkIssuePage() {
   const [showSearchPopup, setShowSearchPopup] = useState(false); // 검색 결과 팝업
   const [popupSearchResults, setPopupSearchResults] = useState([]); // 팝업용 검색 결과
   const [isLoadingSaved, setIsLoadingSaved] = useState(true); // 로딩 상태
-  const [isSavingEmployees, setIsSavingEmployees] = useState(false); // 새로운 state 추가
-
-   const fetchSavedEmployees = async () => {
+  const [isSavingEmployees, setIsSavingEmployees] = useState(false);
+  const [isUpdatingCardType, setIsUpdatingCardType] = useState(false);
+  const [updatingUsers, setUpdatingUsers] = useState(new Set());
+  
+  const fetchSavedEmployees = async () => {
     setIsLoadingSaved(true);
     try {
       const response = await apiService.getSavedBatchList();
@@ -326,13 +328,42 @@ export function BulkIssuePage() {
     }
   };
 
-  const handleChangeCardType = (m_no, value, source) => {
+  const handleChangeCardType = async (m_no, value, source) => {
     const norm = (value ?? 'R').toUpperCase() === 'P' ? 'P' : 'R';
-    const updater = (arr) => arr.map(u => u.m_no === m_no ? { ...u, saved_card_type: norm } : u);
+    
+    // 해당 사용자를 업데이트 중으로 표시
+    setUpdatingUsers(prev => new Set([...prev, m_no]));
+    
+    try {
+      const response = await apiService.updateCardType({
+        employeeId: m_no,
+        cardType: norm
+      });
+      
+      if (response.success) {
+        const updater = (arr) => arr.map(u => u.m_no === m_no ? { ...u, saved_card_type: norm } : u);
 
-    if (source === 'saved')      setSavedEmployees(prev => updater(prev));
-    else if (source === 'upload') setUploadedData(prev => updater(prev));
-    else                          setPopupSearchResults(prev => updater(prev)); // popup에서 편집할 경우
+        if (source === 'saved') {
+          setSavedEmployees(prev => updater(prev));
+        } else if (source === 'upload') {
+          setUploadedData(prev => updater(prev));
+        } else {
+          setPopupSearchResults(prev => updater(prev));
+        }
+      } else {
+        alert(response.message || '카드 타입 변경에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('카드 타입 업데이트 오류:', error);
+      alert('카드 타입 변경 중 오류가 발생했습니다.');
+    } finally {
+      // 해당 사용자를 업데이트 완료로 표시
+      setUpdatingUsers(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(m_no);
+        return newSet;
+      });
+    }
   };
 
   const UserTable = ({ users = [], source, showRemoveButton = false, savedEmployees = [] }) => {
@@ -439,11 +470,12 @@ export function BulkIssuePage() {
                 <TableCell>
                   {(() => {
                     const current = ((user.saved_card_type ?? 'R') + '').toUpperCase();
-                    const value = current === 'P' ? 'P' : 'R'; // 기본 R
+                    const value = current === 'P' ? 'P' : 'R';
                     return (
                       <Select
                         value={value}
                         onValueChange={(v) => handleChangeCardType(user.m_no, v, source)}
+                        disabled={updatingUsers.has(user.m_no)} // 해당 사용자만 비활성화
                       >
                         <SelectTrigger className="w-[120px]">
                           <SelectValue />
