@@ -275,9 +275,9 @@ export function Dashboard({ onPageChange }: DashboardProps) {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div className="space-y-1">
-            <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
+            <h2 className="text-2xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
               대시보드
-            </h1>
+            </h2>
             <p className="text-lg text-muted-foreground">
               국립소방병원 카드발급 시스템 현황을 실시간으로 확인하세요
             </p>
@@ -409,15 +409,29 @@ export function Dashboard({ onPageChange }: DashboardProps) {
                 {(['1month', '6months', '1year'] as const).map((period) => (
                   <Button
                     key={period}
-                    variant={selectedPeriod === period ? "default" : "outline"}
+                    variant="ghost"
                     size="sm"
                     onClick={() => setSelectedPeriod(period)}
                     disabled={isChartLoading}
-                    className={`transition-all duration-200 ${
-                      selectedPeriod === period.key
-                        ? 'bg-blue-600 text-white shadow-sm'
-                        : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
-                    }`}
+                    style={{
+                      backgroundColor: selectedPeriod === period ? '#fd4c4cff' : 'white',
+                      color: selectedPeriod === period ? 'white' : '#374151',
+                      border: selectedPeriod === period ? 'none' : '1px solid #d1d5db',
+                      fontWeight: '500'
+                    }}
+                    className="transition-all duration-200"
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = '#fd4c4cff';
+                      e.currentTarget.style.color = 'white';
+                      e.currentTarget.style.border = 'none';
+                    }}
+                    onMouseLeave={(e) => {
+                      if (selectedPeriod !== period) {
+                        e.currentTarget.style.backgroundColor = 'white';
+                        e.currentTarget.style.color = '#374151';
+                        e.currentTarget.style.border = '1px solid #d1d5db';
+                      }
+                    }}
                   >
                     <span>{getPeriodButtonText(period)}</span>
                   </Button>
@@ -452,14 +466,14 @@ export function Dashboard({ onPageChange }: DashboardProps) {
                   >
                     <defs>
                       <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#374151" stopOpacity={0.8} />
-                        <stop offset="50%" stopColor="#6b7280" stopOpacity={0.4} />
-                        <stop offset="100%" stopColor="#9ca3af" stopOpacity={0.1} />
+                        <stop offset="0%" stopColor="#f0c2c2ff" stopOpacity={0.2} />
+                        <stop offset="50%" stopColor="#f15353ff" stopOpacity={0.2} />
+                        <stop offset="100%" stopColor="#eb0e0eff" stopOpacity={0.1} />
                       </linearGradient>
                       
                       <linearGradient id="lineGradient" x1="0" y1="0" x2="1" y2="0">
                         <stop offset="0%" stopColor="#3b82f6" />
-                        <stop offset="50%" stopColor="#8b5cf6" />
+                        <stop offset="50%" stopColor="#4c55dbff" />
                         <stop offset="100%" stopColor="#ec4899" />
                       </linearGradient>
                       
@@ -509,7 +523,7 @@ export function Dashboard({ onPageChange }: DashboardProps) {
                     <Area
                       type="monotone"
                       dataKey="count"
-                      stroke="#374151"
+                      stroke="#f58181ff"
                       strokeWidth={3}
                       fill="url(#chartGradient)"
                       fillOpacity={0.6}
@@ -521,7 +535,7 @@ export function Dashboard({ onPageChange }: DashboardProps) {
                     <Line
                       type="monotone"
                       dataKey="count"
-                      stroke="#374151"
+                      stroke="#e75959ff"
                       strokeWidth={4}
                       dot={<CustomDot />}
                       activeDot={{ 

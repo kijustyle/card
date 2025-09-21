@@ -179,13 +179,45 @@ class ApiService {
 
   // 인증 관련
   async login(mgId: string, password: string): Promise<ApiResponse<any>> {
-    return this.request('/api/v1/auth/login', {
+
+    const response = await fetch(`${API_BASE_URL}/api/v1/auth/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ mgId, password }),
     })
+
+    const data = await response.json()
+    
+    if (response.ok) {
+      return {
+        success: true,
+        data: data,
+      }
+    } else {
+      return {
+        success: false,
+        message: data.message || '로그인에 실패했습니다.',
+      }
+    }
+  }
+
+  async changePassword(data: PasswordChangeData): Promise<ApiResponse> {
+    try {
+      
+      console.log(data);
+      
+      const response = await this.request('/api/v1/auth/password', {
+        method: 'PUT',
+        body: data,
+      });
+
+      return response;
+    } catch (error) {
+      console.error('비밀번호 변경 실패:', error);
+      throw error;
+    }
   }
 
   async logout(): Promise<ApiResponse<void>> {

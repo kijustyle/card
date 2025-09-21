@@ -33,6 +33,12 @@ export interface CardIssue {
   issuedBy: string
 }
 
+export interface PasswordChangeData {
+  currentPassword: string
+  newPassword: string
+  confirmPassword: string
+}
+
 export interface CardIssueRequest {
   employeeId: string        // 사번
   name: string             // 이름
