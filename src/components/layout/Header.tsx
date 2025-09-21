@@ -119,27 +119,27 @@ export function Header({ onLogout, userInfo, onPasswordChange }: HeaderProps) {
                     <User className="w-4 h-4 text-primary-foreground" />
                   </div>
                   <div className="hidden md:block text-left">
-                    <p className="text-sm font-medium text-foreground">
+                    {/* <p className="text-sm font-medium text-foreground">
                       {userInfo?.MG_NAME}
                     </p>
                     <p className="text-xs text-muted-foreground">
                       {userInfo?.M_NO}
-                    </p>
+                    </p> */}
                   </div>
                   <ChevronDown className="w-4 h-4 text-muted-foreground" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56 animate-scale-in">
-                <DropdownMenuLabel className="flex items-center gap-2">
+                {/* <DropdownMenuLabel className="flex items-center gap-2">
                   <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center">
                     <User className="w-4 h-4 text-primary-foreground" />
                   </div>
                   <div>
                     <p className="text-sm font-medium">{userInfo?.MG_NAME || '관리자'}</p>
                     <p className="text-xs text-muted-foreground">{userInfo?.MG_TYPE || ''}</p>
-                  </div>
+                  </div> 
                 </DropdownMenuLabel>
-                <DropdownMenuSeparator />
+                <DropdownMenuSeparator />*/}
                 
                 {/* 비밀번호 변경 메뉴 아이템 */}
                 <DropdownMenuItem 
@@ -149,12 +149,6 @@ export function Header({ onLogout, userInfo, onPasswordChange }: HeaderProps) {
                   <Lock className="w-4 h-4 mr-2" />
                   비밀번호 변경
                 </DropdownMenuItem>
-                
-                <DropdownMenuItem className="cursor-pointer hover:bg-accent">
-                  <Settings className="w-4 h-4 mr-2" />
-                  설정
-                </DropdownMenuItem>
-                
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   className="cursor-pointer text-destructive focus:text-destructive hover:bg-destructive/10"

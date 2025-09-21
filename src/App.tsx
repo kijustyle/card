@@ -21,12 +21,12 @@ export default function App() {
   const checkAuthStatus = async () => {
     
     const token = localStorage.getItem('accessToken');
-    const userInfo = localStorage.getItem('userInfo');  
-
-    if (token && userInfo) {
+    const userData = localStorage.getItem('userInfo');  
+    
+    if (token && userData) {
       try {
         setIsLoggedIn(true)
-        setUserInfo(userInfo)
+        setUserInfo(userData)
       } catch (error) {
         console.error('Failed to parse user info:', error);
       }
@@ -34,9 +34,9 @@ export default function App() {
     setIsLoading(false);
   }
 
-  const handleLogin = (userData) => {
+  const handleLogin = (userInfo) => {
     setIsLoggedIn(true)
-    setUserInfo(userData)
+    setUserInfo(userInfo)
   }
 
   const handleLogout = () => {

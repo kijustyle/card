@@ -38,6 +38,9 @@ export function LoginPage({ onLogin }: LoginPageProps) {
       // 실제 백엔드 API 연동
       const response = await apiService.login(employeeId, password)
 
+      console.log(response);
+      
+
       if (response.success && response.data) {
         // 토큰 저장
         if (response.data.tokens) {
@@ -49,10 +52,10 @@ export function LoginPage({ onLogin }: LoginPageProps) {
         if (response.data.manager) {
           // localStorage에 사용자 정보 저장 (나중에 API 호출 시 사용)
           localStorage.setItem('userInfo', JSON.stringify({
-            mgId: response.data.manager.MG_ID,
-            mgName: response.data.manager.MG_NAME,
-            mgType: response.data.manager.MG_TYPE,
-            mNo: response.data.manager.M_NO
+            MG_ID: response.data.manager.MG_ID,
+            MG_NAME: response.data.manager.MG_NAME,
+            MG_TYPE: response.data.manager.MG_TYPE,
+            M_NO: response.data.manager.M_NO
           }))
 
           // 상위 컴포넌트로 관리자 정보 전달
