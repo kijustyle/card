@@ -134,12 +134,12 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                     className="flex items-center gap-2"
                   >
                     <User className="w-4 h-4 text-muted-foreground" />
-                    사번
+                    아이디
                   </Label>
                   <Input
                     id="employeeId"
                     type="text"
-                    placeholder="사번을 입력하세요"
+                    placeholder="아이디를 입력하세요"
                     value={employeeId}
                     onChange={(e) => setEmployeeId(e.target.value)}
                     className="h-12 bg-input-background border-border/50 focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all"

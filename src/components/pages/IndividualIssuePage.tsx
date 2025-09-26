@@ -64,14 +64,17 @@ export function IndividualIssuePage() {
     try {
       
       const response = await apiService.searchUserByEmployeeId(searchId)
-
+      
+      console.log(response);
+      
       if (response.success && response.data) {
         // API 응답 데이터를 프론트엔드 형식으로 변환
         const userData = {
           no: response.data.m_no,
           name: response.data.m_name,
+          ename : response.data.m_e_name,
           department: response.data.m_department_name,
-          position: response.data.m_position,
+          position: response.data.m_position_name,
           group: response.data.m_group,
           status: response.data.m_status,
           photo_blob: response.data.photo_blob,
@@ -128,6 +131,7 @@ export function IndividualIssuePage() {
       const issueData = {
         employeeId: searchedUser.no,           // 사번
         name: searchedUser.name,               // 이름
+        ename: searchedUser.ename,             // 영문 이름
         department: searchedUser.department,    // 부서
         position: searchedUser.position,       // 직급
         cardCount: cardCount,                  // 발급차수
@@ -256,7 +260,7 @@ export function IndividualIssuePage() {
               <Label htmlFor="employee-id">검색어</Label>
               <Input
                 id="employee-id"
-                placeholder="이름, 사번을 입력하세요"
+                placeholder="사번을 입력하세요"
                 value={searchId}
                 onChange={(e) => setSearchId(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
@@ -305,6 +309,10 @@ export function IndividualIssuePage() {
                   <div>
                     <Label>직급</Label>
                     <p className="mt-1">{searchedUser.position}</p>
+                  </div>
+                  <div>
+                    <Label>영문이름</Label>
+                    <p className="mt-1">{searchedUser.ename}</p>
                   </div>
                   <div>
                     <Label>부서</Label>
